@@ -4,7 +4,23 @@
 <Super>%Persistent</Super>
 <TimeCreated>64485,40498.333523</TimeCreated>
 
-<Property name="name">
+<Property name="country">
+<Type>%String</Type>
+</Property>
+
+<Property name="city">
+<Type>%String</Type>
+</Property>
+
+<Property name="accent">
+<Type>%String</Type>
+</Property>
+
+<Property name="region">
+<Type>%String</Type>
+</Property>
+
+<Property name="pop">
 <Type>%String</Type>
 </Property>
 
@@ -13,7 +29,7 @@
 <Parameter name="SCALE" value="7"/>
 </Property>
 
-<Property name="longtude">
+<Property name="longitude">
 <Type>%Decimal</Type>
 <Parameter name="SCALE" value="7"/>
 </Property>
@@ -26,8 +42,6 @@
 <IndexLocation>^geodistance.CityI</IndexLocation>
 <StreamLocation>^geodistance.CityS</StreamLocation>
 <Data name="CityDefaultData">
-<Structure>listnode</Structure>
-<Subscript/>
 <Value name="1">
 <Value>%%CLASSNAME</Value>
 </Value>
