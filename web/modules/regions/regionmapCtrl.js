@@ -1,6 +1,7 @@
 controllersModule.controller('regionmapController', function ($scope, $routeParams, NgMap, $rootScope, $location, regionSrvc) {
     var vm = this;
 
+    $scope.limit = 1;
     $scope.googleMapsUrl = "https://maps.googleapis.com/maps/api/js?key=AIzaSyBKWojtxkjHuh44CNE8mw9S-nX3qWeLHGM"
 	
     NgMap.getMap().then(function (map) {
@@ -65,7 +66,7 @@ controllersModule.controller('regionmapController', function ($scope, $routePara
     
     $scope.coloringNearestCities = function(coords){
         $scope.removeAllPolylines();
-        var cityRequest = {latitude: coords.lat(), longitude: coords.lng(), limit: 4};
+        var cityRequest = {latitude: coords.lat(), longitude: coords.lng(), limit: $scope.limit};
         
         regionSrvc.getNearestCities(cityRequest).then(
             function(data){
@@ -75,6 +76,7 @@ controllersModule.controller('regionmapController', function ($scope, $routePara
                 
                 for(var i = 0; i < data.data.children.length; i++){
                     for(var j = 0; j < $scope.markers.length; j++){
+                        
                         if($scope.markers[j].id == data.data.children[i].ID){
                             
                             var srcCoord = {lat: coords.lat(), lng: coords.lng()};
