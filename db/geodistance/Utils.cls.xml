@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2017.1 (Build 792U)" ts="2017-07-19 14:51:26">
-<Class name="fishnet.Utils">
+<Class name="geodistance.Utils">
 <TimeChanged>64483,51676.814354</TimeChanged>
 <TimeCreated>64483,43361.763945</TimeCreated>
 
