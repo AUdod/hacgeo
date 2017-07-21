@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25">
-<Class name="geodistance.City">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2017.1 (Build 792)" ts="2017-07-21 20:41:58">
+<Class name="fishnet.City">
 <Super>%Persistent</Super>
-<TimeCreated>64485,40498.333523</TimeCreated>
+<TimeChanged>64485,74433.565039</TimeChanged>
+<TimeCreated>64485,44409.548686</TimeCreated>
 
 <Property name="country">
 <Type>%String</Type>
@@ -34,61 +35,6 @@
 <Parameter name="SCALE" value="7"/>
 </Property>
 
-<Method name="GetCities">
-<ClassMethod>1</ClassMethod>
-<Implementation><![CDATA[
-	set st = $$$OK
-	try{
-		set proxy = []		
-		&sql(DECLARE CiCur CURSOR FOR 
-		 	 SELECT ID
-		 	 FROM geodistance.City)	
-		
-		&sql(OPEN CiCur)
-		for  
-		{	
-			&sql(FETCH CiCur INTO :id) 
-			quit:(SQLCODE '= 0)			
-			do proxy.%Push(##class(geodistance.City).%OpenId(id).CityToJSON())
-		}		
-		&sql(CLOSE CiCur)		 
-	}
-	catch (ex){
-		set st = ex.AsStatus()
-	}
-	
-	quit proxy.%ToJSON()
-]]></Implementation>
-</Method>
-
-<Method name="CityToJSON">
-<ReturnType>%Status</ReturnType>
-<Implementation><![CDATA[
- set city = $this
- set proxy = {}
- set proxy.id = ..%Id()
- set proxy.city = ..city
- set proxy.latitude = ..latitude
- set proxy.longitude = ..longitude	
- quit proxy.%ToJSON()
-]]></Implementation>
-</Method>
-
-<UDLText name="T">
-<Content><![CDATA[
-/* ClassMethod GetDistance(firstCity As %String, secondCity As %String)
-{
-	set firstC = ##class(geodistance.City).%OpenId(firstCity)
-	set secondC = ##class(geodistance.City).%OpenId(secondCity)
-	set firstLat = firstC.latitude
-	set firstLon = firstC.longitude
-	set secondLat = secondC.latitude
-	set secondLon = secondC.longitude
-	
-} */
-]]></Content>
-</UDLText>
-
 <Method name="NearestCities">
 <ClassMethod>1</ClassMethod>
 <FormalSpec>pointId:%String,top:%String</FormalSpec>
@@ -102,53 +48,45 @@
 ]]></Implementation>
 </Method>
 
-<Method name="Geobox">
-<FormalSpec>srclat:%Decimal(SCALE=7),srclong:%Decimal(SCALE=7),dist:%Decimal</FormalSpec>
+<Method name="NearestCitiesByCoord">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>lat:%String,lon:%String,top:%String</FormalSpec>
 <Implementation><![CDATA[
-	set latTop = srclat + (dist/69) 
-	set longLft = srclong - (dist/$ZABS($ZCOS((srclat*3.14)/180)*69))
-	set latBot = srclat - (dist/69) 
-	set longRgt = srclong + (dist/$ZABS($ZCOS((srclat*3.14)/180)*69))
-	return latTop,longLft,latBot,longRgt
+	set sql="select top("_top_") * , sqrt(square(latitude-"_lat_")+square(longitude-"_lon_")) as dist from fishnet.City order by dist"	
+	q ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,sql)
 ]]></Implementation>
 </Method>
 
 <Storage name="Default">
 <Type>%Library.CacheStorage</Type>
-<DataLocation>^geodistance.CityD</DataLocation>
+<DataLocation>^fishnet.CityD</DataLocation>
 <DefaultData>CityDefaultData</DefaultData>
-<IdLocation>^geodistance.CityD</IdLocation>
-<IndexLocation>^geodistance.CityI</IndexLocation>
-<StreamLocation>^geodistance.CityS</StreamLocation>
+<IdLocation>^fishnet.CityD</IdLocation>
+<IndexLocation>^fishnet.CityI</IndexLocation>
+<StreamLocation>^fishnet.CityS</StreamLocation>
 <Data name="CityDefaultData">
 <Value name="1">
 <Value>%%CLASSNAME</Value>
 </Value>
 <Value name="2">
-<Value>name</Value>
-</Value>
-<Value name="3">
-<Value>latitude</Value>
-</Value>
-<Value name="4">
-<Value>longtude</Value>
-</Value>
-<Value name="5">
 <Value>country</Value>
 </Value>
-<Value name="6">
+<Value name="3">
 <Value>city</Value>
 </Value>
-<Value name="7">
+<Value name="4">
 <Value>accent</Value>
 </Value>
-<Value name="8">
+<Value name="5">
 <Value>region</Value>
 </Value>
-<Value name="9">
+<Value name="6">
 <Value>pop</Value>
 </Value>
-<Value name="10">
+<Value name="7">
+<Value>latitude</Value>
+</Value>
+<Value name="8">
 <Value>longitude</Value>
 </Value>
 </Data>
