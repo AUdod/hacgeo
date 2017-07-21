@@ -10,7 +10,8 @@ controllersModule.controller('regionmapController', function ($scope, $routePara
         $scope.init();
     });
 	
-    $scope.kilometer=false;
+    $scope.radiusCircle = null;
+    $scope.kilometer = false;
 	$scope.markers = [];
     $scope.informationWindows = [];
     $scope.polylines = [];
@@ -70,13 +71,45 @@ controllersModule.controller('regionmapController', function ($scope, $routePara
         }
     }
     
+    
+    $scope.removeRadiusCircle = function(){
+        if($scope.radiusCircle != null){
+            $scope.radiusCircle.setMap(null);    
+            $scope.radiusCircle.visible = false;    
+            
+            $scope.radiusCircle = null;    
+        }
+            
+        
+    
+    
+    }
+    
+    $scope.drawRadiusCircle = function(latlng){
+         var cityCircle = new google.maps.Circle({
+              strokeColor: '#FF0000',
+              strokeOpacity: 0.2,
+              strokeWeight: 2,
+              fillColor: '#FF0000',
+              fillOpacity: 0.2,
+              map: vm.map,
+              center: latlng,
+              radius: parseInt($scope.limit * 1000),
+              id: 1
+        });
+        
+        $scope.radiusCircle = cityCircle;
+
+    }
+    
     $scope.coloringNearestCities = function(coords){
         $scope.removeAllPolylines();
-        
+        $scope.removeRadiusCircle();
         var cityRequest = {latitude: coords.lat(), longitude: coords.lng(), limit: $scope.limit};
-        
-        regionSrvc.getNearestCities(cityRequest).then(
+        if($scope.kilometer){
+            regionSrvc.getNearestCitiesRadius(cityRequest).then(
             function(data){
+                
                 var simplified = {};
                 var dataBuff;
                 //var srcCity = data.data.children[0];
@@ -94,17 +127,53 @@ controllersModule.controller('regionmapController', function ($scope, $routePara
                             //$scope.markers[j].infoWindow.open(vm.map, $scope.markers[j]);
                             $scope.markers[j].setIcon("http://maps.google.com/mapfiles/ms/icons/blue-dot.png");
                             $scope.markers[j].setAnimation(google.maps.Animation.BOUNCE);
-                            $scope.createPolyline(srcCoord, destCoord);    
+                            //$scope.createPolyline(srcCoord, destCoord);    
                             
                         }
                     }
                 }
+                $scope.drawRadiusCircle(srcCoord);
                 
             },
             function(data,status,headers,config){
 				alert(status);
             }
-        );
+        );    
+        }
+        else{
+            regionSrvc.getNearestCities(cityRequest).then(
+                function(data){
+                    
+                    var simplified = {};
+                    var dataBuff;
+                    //var srcCity = data.data.children[0];
+
+                    for(var i = 0; i < data.data.children.length; i++){
+                        for(var j = 0; j < $scope.markers.length; j++){
+
+                            if($scope.markers[j].id == data.data.children[i].ID){
+
+                                var srcCoord = {lat: coords.lat(), lng: coords.lng()};
+                                var destCoord = {lat: $scope.markers[j].lat, lng: $scope.markers[j].lng}
+
+                                var infoWindow = $scope.createMarkerInfo(data.data.children[i]);
+                                infoWindow.open(vm.map, $scope.markers[j]);
+                                //$scope.markers[j].infoWindow.open(vm.map, $scope.markers[j]);
+                                $scope.markers[j].setIcon("http://maps.google.com/mapfiles/ms/icons/blue-dot.png");
+                                $scope.markers[j].setAnimation(google.maps.Animation.BOUNCE);
+                                $scope.createPolyline(srcCoord, destCoord);    
+                            }
+                        }
+                    }
+
+                },
+                function(data,status,headers,config){
+                    alert(status);
+                }
+        );  
+        }
+        
+        
         
         
     }

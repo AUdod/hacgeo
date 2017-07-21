@@ -6,7 +6,7 @@
         </div>
         <div class = "col-sm-4">
 			<input type="text" ng-model="limit" />
-            <input type="button" ng-click="kilometerTrigger()"/>
+            <input type="button" ng-class ="kilometer ? 'btn-success' : 'btn-default'" value = "Километры" ng-click="kilometerTrigger()"/>
         </div>
     </div>
 
