@@ -8,8 +8,8 @@
 servicesModule.factory('regionSrvc', function(RESTSrvc,settings) {    
     return {
     	/* Все регионы */
-        getNearestCities: function(coord){
-            return RESTSrvc.getPromise({method: 'GET', url: settings.server + 'nearest/' + coord.lat + '/' + coord.lng + '/' + coord.limit});
+        getNearestCities: function(city){
+            return RESTSrvc.getPromise({method: 'GET', url: settings.server + 'nearestcities/' + city.id + '/' + city.limit});
         },
 		getAllCities: function(){
 			return RESTSrvc.getPromise({method: 'GET', url: settings.server + 'cities'});
