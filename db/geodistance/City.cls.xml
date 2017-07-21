@@ -95,7 +95,7 @@
 <Implementation><![CDATA[
 	set sql="select top("_top_") * , sqrt(square(latitude-("_
 				"select latitude from fishnet.City " _
-					"where id = :ponintId))+square(longitude-("_
+					"where id = "_pointId_"))+square(longitude-("_
 							"select longitude from fishnet.City "_
 									"where id = "_pointId_"))) as dist from fishnet.City order by dist"	
 	q ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,sql)
