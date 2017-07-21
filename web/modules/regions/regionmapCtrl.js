@@ -164,6 +164,7 @@ controllersModule.controller('regionmapController', function ($scope, $routePara
                                 var destCoord = {lat: $scope.markers[j].lat, lng: $scope.markers[j].lng}
 
                                 var infoWindow = $scope.createMarkerInfo(data.data.children[i]);
+                                $scope.citiesList.push(data.data.children[i]);
                                 infoWindow.open(vm.map, $scope.markers[j]);
                                 //$scope.markers[j].infoWindow.open(vm.map, $scope.markers[j]);
                                 $scope.markers[j].setIcon("http://maps.google.com/mapfiles/ms/icons/blue-dot.png");
@@ -246,6 +247,7 @@ controllersModule.controller('regionmapController', function ($scope, $routePara
                 $scope.coloringNearestCities(this.id);
                 this.setIcon("http://maps.google.com/mapfiles/ms/icons/yellow-dot.png");
 		});*/
+        marker.setClickable(false);
 		return marker;
 	}
 	
