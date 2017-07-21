@@ -1,6 +1,7 @@
 controllersModule.controller('regionmapController', function ($scope, $routeParams, NgMap, $rootScope, $location, regionSrvc) {
     var vm = this;
-
+    
+    
     $scope.limit = 1;
     $scope.googleMapsUrl = "https://maps.googleapis.com/maps/api/js?key=AIzaSyBKWojtxkjHuh44CNE8mw9S-nX3qWeLHGM"
 	
@@ -9,10 +10,15 @@ controllersModule.controller('regionmapController', function ($scope, $routePara
         $scope.init();
     });
 	
+    $scope.kilometer=false;
 	$scope.markers = [];
     $scope.informationWindows = [];
     $scope.polylines = [];
 	
+    $scope.kilometerTrigger = function(){
+        $scope.kilometer = !$scope.kilometer;
+    }
+    
 	$scope.getAll = function(){
 		
 		regionSrvc.getAllCities().then(
@@ -66,6 +72,7 @@ controllersModule.controller('regionmapController', function ($scope, $routePara
     
     $scope.coloringNearestCities = function(coords){
         $scope.removeAllPolylines();
+        
         var cityRequest = {latitude: coords.lat(), longitude: coords.lng(), limit: $scope.limit};
         
         regionSrvc.getNearestCities(cityRequest).then(
@@ -92,25 +99,7 @@ controllersModule.controller('regionmapController', function ($scope, $routePara
                         }
                     }
                 }
-                /*
-                for(var i = 0; i < data.data.children.length; i++){
-                    simplified[data.data.children[i].ID] = data.data.children[i].ID;
-                }
                 
-                for(var i = 0; i < $scope.markers.length; i++){
-                    if($scope.markers[i].id == simplified[$scope.markers[i].id]){
-                        
-                        var srcCoord = {lat: coords.lat(), lng: coords.lng()};
-                        var destCoord = {lat: $scope.markers[i].lat, lng: $scope.markers[i].lng}
-                        
-                        $scope.createMarkerInfo(data.)
-                        $scope.markers[i].infoWindow.open(vm.map, $scope.markers[i]);
-                        $scope.markers[i].setIcon("http://maps.google.com/mapfiles/ms/icons/blue-dot.png");
-                        $scope.markers[i].setAnimation(google.maps.Animation.BOUNCE);
-                        $scope.createPolyline(srcCoord, destCoord);
-                    }
-                }
-                */
             },
             function(data,status,headers,config){
 				alert(status);
