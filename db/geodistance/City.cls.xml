@@ -34,6 +34,72 @@
 <Parameter name="SCALE" value="7"/>
 </Property>
 
+<Method name="GetCities">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	set st = $$$OK
+	try{
+		set proxy = []		
+		&sql(DECLARE CiCur CURSOR FOR 
+		 	 SELECT ID
+		 	 FROM geodistance.City)	
+		
+		&sql(OPEN CiCur)
+		for  
+		{	
+			&sql(FETCH CiCur INTO :id) 
+			quit:(SQLCODE '= 0)			
+			do proxy.%Push(##class(geodistance.City).%OpenId(id).CityToJSON())
+		}		
+		&sql(CLOSE CiCur)		 
+	}
+	catch (ex){
+		set st = ex.AsStatus()
+	}
+	
+	quit proxy.%ToJSON()
+]]></Implementation>
+</Method>
+
+<Method name="CityToJSON">
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+ set city = $this
+ set proxy = {}
+ set proxy.id = ..%Id()
+ set proxy.city = ..city
+ set proxy.latitude = ..latitude
+ set proxy.longitude = ..longitude	
+ quit proxy.%ToJSON()
+]]></Implementation>
+</Method>
+
+<UDLText name="T">
+<Content><![CDATA[
+/* ClassMethod GetDistance(firstCity As %String, secondCity As %String)
+{
+	set firstC = ##class(geodistance.City).%OpenId(firstCity)
+	set secondC = ##class(geodistance.City).%OpenId(secondCity)
+	set firstLat = firstC.latitude
+	set firstLon = firstC.longitude
+	set secondLat = secondC.latitude
+	set secondLon = secondC.longitude
+	
+} */
+]]></Content>
+</UDLText>
+
+<Method name="Geobox">
+<FormalSpec>srclat:%Decimal(SCALE=7),srclong:%Decimal(SCALE=7),dist:%Decimal</FormalSpec>
+<Implementation><![CDATA[
+	set latTop = srclat + (dist/69) 
+	set longLft = srclong - (dist/$ZABS($ZCOS((srclat*3.14)/180)*69))
+	set latBot = srclat - (dist/69) 
+	set longRgt = srclong + (dist/$ZABS($ZCOS((srclat*3.14)/180)*69))
+	return latTop,longLft,latBot,longRgt
+]]></Implementation>
+</Method>
+
 <Storage name="Default">
 <Type>%Library.CacheStorage</Type>
 <DataLocation>^geodistance.CityD</DataLocation>
@@ -53,6 +119,24 @@
 </Value>
 <Value name="4">
 <Value>longtude</Value>
+</Value>
+<Value name="5">
+<Value>country</Value>
+</Value>
+<Value name="6">
+<Value>city</Value>
+</Value>
+<Value name="7">
+<Value>accent</Value>
+</Value>
+<Value name="8">
+<Value>region</Value>
+</Value>
+<Value name="9">
+<Value>pop</Value>
+</Value>
+<Value name="10">
+<Value>longitude</Value>
 </Value>
 </Data>
 </Storage>
