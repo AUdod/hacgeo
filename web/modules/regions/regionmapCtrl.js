@@ -10,7 +10,7 @@ controllersModule.controller('regionmapController', function ($scope, $routePara
 	
 	$scope.markers = [];
 	
-	$scope.getAllCities = function(){
+	$scope.getAll = function(){
 		
 		regionSrvc.getAllCities().then({
 				function(data){
@@ -28,7 +28,7 @@ controllersModule.controller('regionmapController', function ($scope, $routePara
 	
 	$scope.showAll = function(){
 		
-		$scope.getAllCities();
+		$scope.getAll();
 		
 		for(var i = 0; i < $scope.markers.length; i++){
 			$scope.markers[i].setMap(vm.map);
