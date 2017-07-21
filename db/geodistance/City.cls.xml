@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2017.1 (Build 792)" ts="2017-07-21 20:41:58">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2017.1 (Build 792)" ts="2017-07-21 23:38:20">
 <Class name="fishnet.City">
 <Super>%Persistent</Super>
-<TimeChanged>64485,74433.565039</TimeChanged>
+<TimeChanged>64485,84953.561886</TimeChanged>
 <TimeCreated>64485,44409.548686</TimeCreated>
 
 <Property name="country">
@@ -52,8 +52,66 @@
 <ClassMethod>1</ClassMethod>
 <FormalSpec>lat:%String,lon:%String,top:%String</FormalSpec>
 <Implementation><![CDATA[
-	set sql="select top("_top_") * , sqrt(square(latitude-"_lat_")+square(longitude-"_lon_")) as dist from fishnet.City order by dist"	
+	set sql="select top("_top_") * , fishnet.City_haversine(latitude,"_lat_",longitude,"_lon_") as dist from fishnet.City order by dist"	
 	q ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,sql)
+]]></Implementation>
+</Method>
+
+<Method name="haversine">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>lat1:%Decimal,lat2:%Decimal,lon1:%Decimal,lon2:%Decimal</FormalSpec>
+<ReturnType>%Decimal</ReturnType>
+<SqlProc>1</SqlProc>
+<Implementation><![CDATA[
+	set rlat1 = lat1*$ZPI/180
+	set rlat2 = lat2*$ZPI/180
+	set rlon1 = lon1*$ZPI/180
+	set rlon2 = lon2*$ZPI/180
+	quit $ZARCSIN($ZSQR($ZPOWER($ZSIN((rlat1-rlat2)/2),2)+ ($ZCOS(rlat1)*$ZCOS(rlat2)*$ZPOWER($ZSIN((rlon1-rlon2)/2),2))))*12742
+]]></Implementation>
+</Method>
+
+<Method name="haversine2">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>lat1:%Decimal,lat2:%Decimal,lon1:%Decimal,lon2:%Decimal</FormalSpec>
+<ReturnType>%Decimal</ReturnType>
+<SqlProc>1</SqlProc>
+<Implementation><![CDATA[
+	set rlat1 = lat1*$ZPI/180
+	set rlat2 = lat2*$ZPI/180
+	set rlon1 = lon1*$ZPI/180
+	set rlon2 = lon2*$ZPI/180
+	set qsinlat = $ZPOWER($ZSIN((rlat1-rlat2)/2),2)
+	set qsinlon = $ZPOWER($ZSIN((rlon1-rlon2)/2),2)
+	set mcos= $ZCOS(rlat1)*$ZCOS(rlat2)
+	quit $ZARCSIN($ZSQR(qsinlat+ (mcos*qsinlon)))*12742
+]]></Implementation>
+</Method>
+
+<Method name="sin">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>num</FormalSpec>
+<ReturnType>%Decimal</ReturnType>
+<SqlProc>1</SqlProc>
+<Implementation><![CDATA[	q $ZSIN(num)
+]]></Implementation>
+</Method>
+
+<Method name="cos">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>num</FormalSpec>
+<ReturnType>%Decimal</ReturnType>
+<SqlProc>1</SqlProc>
+<Implementation><![CDATA[	q $ZCOS(num)
+]]></Implementation>
+</Method>
+
+<Method name="asin">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>num</FormalSpec>
+<ReturnType>%Decimal</ReturnType>
+<SqlProc>1</SqlProc>
+<Implementation><![CDATA[	q $ZARCSIN(num)
 ]]></Implementation>
 </Method>
 
