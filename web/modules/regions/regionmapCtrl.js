@@ -1,261 +1,124 @@
-controllersModule.controller('regionmapController', function ($scope, $routeParams, NgMap, regionSrvc, $rootScope, $location ) {
-/*     var vm = this;
-	$scope.regionEdit = true;
-	$scope.name;
-	$scope.code;
-	
-	$scope.showResources = false;
-	$scope.currentResource;
-	$scope.resources = [];
-	$scope.resourcesInTable = [];
-	
-    $scope.currentPolygon = ""; */
+controllersModule.controller('regionmapController', function ($scope, $routeParams, NgMap, $rootScope, $location, regionSrvc) {
+    var vm = this;
+
     $scope.googleMapsUrl = "https://maps.googleapis.com/maps/api/js?key=AIzaSyBKWojtxkjHuh44CNE8mw9S-nX3qWeLHGM"
-   
-    /* var rid = $routeParams.regionid;
-	
-	$scope.clearContentsOfMap = function(){
-		for(var i = 0; i < $rootScope.regionPolygon.length; i++){
-			$rootScope.regionPolygon[i].setMap(null);
-		}
-		
-	}
 	
     NgMap.getMap().then(function (map) {
         vm.map = map;
-        if($rootScope.regionPolygon)
-        {
-            $scope.clearContentsOfMap();
-        }
         $scope.init();
     });
-    
-	$scope.backToRegionList = function(){
-		$location.path('/').replace();
-	}
- 
-    $scope.init = function () {
-		if(!$rootScope.regionPolygon){
-			$rootScope.regionPolygon = [];
-		}
+	
+	$scope.markers = [];
+    $scope.informationWindows = [];
+	
+	$scope.getAll = function(){
 		
-        $scope.regionEdit = false;
-
-        regionSrvc.getAll().then(
-            function(data){
-                $scope.openAllRegions(data.data);
-            },
-            function (data,status,headers,config){
-                alert(status);
-            }
-        );
-
-        resourceSrvc.getAll().then(
+		regionSrvc.getAllCities().then(
 				function(data){
-					
 					for(var i = 0; i < data.data.length; i++){
-						var parsedResource = JSON.parse(data.data[i]);
-						$scope.resources.push(parsedResource);
+						var parsedString = JSON.parse(data.data[i]);
+						var marker = $scope.createMarker(parsedString);
+						$scope.markers.push(marker);
 					}
 				},
-				function (data, status, headers, config) {
-					
-			}
+				function(data,status,headers,config){
+					alert(status);
+				}
 		);
-    }
-	
-    function getRandomColor() {
-      var letters = '0123456789ABCDEF';
-      var color = '#';
-      for (var i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-      }
-      return color;
-    }
-
-	$scope.openAllRegions = function(regions){
-		
-		for(var i = 0; i < regions.length; i++){
-			var triangleCoords = [];
-			region = JSON.parse(regions[i]);
-			
-			for (var j = 0; j < region.coordinates.length; j++) {
-				
-				triangleCoords.push({
-					lat: region.coordinates[j].latitude,
-					lng: region.coordinates[j].longtude
-				});
-			
-			}
-			
-			var triangle = new google.maps.Polygon({
-				paths: triangleCoords,
-				strokeColor: '#e1e1e1',
-				strokeOpacity: 0.8,
-				strokeWeight: 2,
-				fillColor: getRandomColor(),
-				fillOpacity: 0.35,
-				draggable: false,
-				id: region.id,
-				code: region.code,
-				name: region.name
-			});
-			
-			triangle.setMap(vm.map);
-
-			google.maps.event.addListener(triangle, 'click', function (event) {
-				$scope.currentPolygon = this;
-                
-                
-				
-                
-                
-                regionResourceSrvc.getAll($scope.currentPolygon.id).then(
-                function(data){
-						var contentString = '<b>'+$scope.currentPolygon.name+'</b><br>' +
-						'Код: ' + $scope.currentPolygon.code +
-						'<br>' + 'Список ресурсов: ' + '<br><br>';
-						
-                        for(var i = 0; i < data.data.children.length; i++){
-                            var parsedResource = data.data.children[i];
-                            $scope.resourcesInTable.push(parsedResource);
-							contentString += ''+parsedResource.name+'<br>';
-                        }
-						
-						
-						infoWindow.setContent(contentString);
-						infoWindow.setPosition(event.latLng);
-
-						infoWindow.open(vm.map);
-                },
-                function(data, status, headers, config){
-                    }
-                );
-			});
-
-			//polyList.push(triangle);
-			triangle.setMap(vm.map);
-			$rootScope.regionPolygon.push(triangle);
-		}
-        infoWindow = new google.maps.InfoWindow;
 	}
+	
+	$scope.showAll = function(){
 
-    $scope.openPolygon = function () {
-
-        regionSrvc.get(3).then(
-            function (data) {
-                alert(data.data.name + '\n' + data.data.coordinates[0].latitude + '\n' + data.data.coordinates[0].longtude);
-                $scope.id = data.data.name;
-
-            },
-            function (data, status, headers, config) {
-                alert(status);
-            });
-    }
-
-
-    var isPolygonChosen = function () {
-        if ($scope.currentPolygon != "") return true;
-        else return false;
-    }
-
-    $scope.deletePolygon = function () {
-        if (isPolygonChosen()) {
-            $scope.currentPolygon.setMap(null);
-			regionSrvc.remove($scope.currentPolygon.id)
-            $scope.currentPolygon = "";
-        } else {
-            alert("No polygons chosen");
-        }
-    }
-
-    $scope.savePolygon = function () {
-        if (isPolygonChosen()) {
-            $scope.currentPolygon.setOptions({
-                editable: false,
-                draggable: false
-            });
-
-            var vertices = $scope.currentPolygon.getPath();
-            var polygonPoints = [];
-            for (var i = 0; i < vertices.length; i++) {
-                var xy = vertices.getAt(i);
-                polygonPoints.push({
-                    latitude: xy.lat(),
-                    longtude: xy.lng()
-                });
-            }
-			$scope.currentPolygon.name = $scope.name;
-			$scope.currentPolygon.code = $scope.code;
-			
-            var editRegion = JSON.stringify({id: $scope.currentPolygon.id, name: $scope.currentPolygon.name, code: $scope.currentPolygon.code, coordinates: polygonPoints});
-			regionSrvc.save(editRegion);
-			
-        } else {
-            alert("No polygons chosen");
-        }
-    }
-
-
-
-    $scope.editPolygon = function () {
-        if (isPolygonChosen()) {
-				$scope.currentPolygon.setOptions({
-					editable: true,
-					draggable: true
-				});
-			$scope.name = $scope.currentPolygon.name;
-			$scope.code = $scope.currentPolygon.code;
-			alert($scope.currentPolygon.id + " " + $scope.currentPolygon.name + " " + $scope.currentPolygon.code);
-		}
-        else alert("No polygons chosen");
-    }
-
-    $scope.createPolygon = function () {
-        var mapCenterCoords = vm.map.getCenter();
-        var lat = mapCenterCoords.lat();
-        var lng = mapCenterCoords.lng();
-        var mapZoom = vm.map.getZoom();
-        var scaling = 5 / mapZoom;
-
-
-        var triangleCoords = [{
-                lat: lat + scaling,
-                lng: lng
-			},
-            {
-                lat: lat - scaling,
-                lng: lng + scaling
-			},
-            {
-                lat: lat - scaling,
-                lng: lng - scaling
-			}
-		];
-
-        var triangle = new google.maps.Polygon({
-            paths: triangleCoords,
-            strokeColor: '#FF0000',
-            strokeOpacity: 0.8,
-            strokeWeight: 2,
-            fillColor: '#FF0000',
-            fillOpacity: 0.35,
-            draggable: false,
-        });
-
-        //polyList.push(triangle);
-		$scope.currentPolygon = triangle;
-		$scope.name=$scope.currentPolygon.name;
-		$scope.code=$scope.currentPolygon.code;
-		$scope.currentPolygon.setOptions({editable:true, draggable:true});
+		$scope.getAll();
 		
-        google.maps.event.addListener(triangle, 'click', function (event) {
-            $scope.currentPolygon = this;
-			
-            //$scope.id = $scope.currentPolygon.get("id");
+		for(var i = 0; i < $scope.markers.length; i++){
+			$scope.markers[i].setMap(vm.map);
+		}
+		
+	}
+	
+    $scope.clearInfoWindows = function(){
+        for(var i = 0; i < $scope.informationWindows.length; i++){
+			$scope.informationWindows[i].close();
+		}
+    }
+    
+	$scope.clearMap = function(){
+		for(var i = 0; i < $scope.markers.length; i++){
+			$scope.markers[i].setMap(null);
+		}
+	}
+    
+    $scope.createMarkerInfo = function(markerData){
+        var contentString = '<div class = "content">' +
+                            '<p>' + markerData.city + '</p>' +
+                            '<br>' + '<p>' + markerData.id + '</p>'
+        
+        var infoWindow = new google.maps.InfoWindow({
+            content: contentString
         });
+        
+        $scope.informationWindows.push(infoWindow);
+        return infoWindow;
+    }
+    
+	$scope.createMarker = function(data){
+		var marker = new google.maps.Marker({
+			position: {lat: data.latitude, lng: data.longitude},
+			map: vm.map,
+			title: 'Click to show info',
+			id: data.id,
+			name: data.city
+		});
+		
+        var markerData = {id: data.id, city: data.city};
+        var infoWindow = $scope.createMarkerInfo(markerData);
+        
+		marker.addListener('click', function(){
+				vm.map.setCenter(marker.getPosition());
+                $scope.clearInfoWindows();
+                infoWindow.open(vm.map, this);
+		});
+		return marker;
+	}
+	
+	$scope.init = function(){
+		
+		$scope.showAll();
+		
+		vm.map.addListener('click', function(e) {
+			/*$scope.clearMap();
+			var marker = $scope.createMarker(e.latLng);
+			$scope.markers.push(marker);
+			
+			vm.map.panTo(marker.getPosition());
+			
+			var coordinate = {lat: e.latLng.lat, lng: e.latLng.lng, limit: 10};
+			
+			
+			marker.addListener('click', function(){
+				vm.map.setZoom(2);
+				vm.map.setCenter(marker.getPosition());
+			});
+			*/
+			
+			
+			
+			/*
+			regionSrvc.getNearestCities(coordinate).then({
+				function(data){
+					//$scope.showNearestCities(data.data);
+				},
+				function (data,status,headers,config){
+					alert(status);
+				}
+			});
+			*/
+			
+		  });
 
-        triangle.setMap(vm.map);
-    } */
+
+
+	}
 
 })
