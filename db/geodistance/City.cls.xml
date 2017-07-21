@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2017.1 (Build 792)" ts="2017-07-22 00:02:27">
+<Export generator="Cache" version="25" zv="Cache for Windows (x86-64) 2017.1 (Build 792)" ts="2017-07-22 02:19:21">
 <Class name="geodistance.City">
 <Super>%Persistent</Super>
-<TimeChanged>64486,105.009987</TimeChanged>
+<TimeChanged>64486,8348.15053</TimeChanged>
 <TimeCreated>64485,40498.333523</TimeCreated>
 
 <Property name="country">
@@ -122,6 +122,15 @@
 <FormalSpec>lat:%String,lon:%String,top:%String</FormalSpec>
 <Implementation><![CDATA[
 	set sql="select top("_top_") * , geodistance.City_haversine(latitude,"_lat_",longitude,"_lon_") as dist from geodistance.City order by dist"	
+	q ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,sql)
+]]></Implementation>
+</Method>
+
+<Method name="NearestCitiesInRadius">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>lat:%String,lon:%String,distance:%String</FormalSpec>
+<Implementation><![CDATA[
+	set sql="select * from (select * , geodistance.City_haversine(latitude,"_lat_",longitude,"_lon_") as dist from geodistance.City ) where (dist < "_distance_")"	
 	q ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,sql)
 ]]></Implementation>
 </Method>
