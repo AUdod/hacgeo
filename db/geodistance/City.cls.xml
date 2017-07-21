@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+<Class name="geodistance.City">
+<Super>%Persistent</Super>
+<TimeCreated>64485,40498.333523</TimeCreated>
+
+<Property name="name">
+<Type>%String</Type>
+</Property>
+
+<Property name="latitude">
+<Type>%Decimal</Type>
+<Parameter name="SCALE" value="7"/>
+</Property>
+
+<Property name="longtude">
+<Type>%Decimal</Type>
+<Parameter name="SCALE" value="7"/>
+</Property>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^geodistance.CityD</DataLocation>
+<DefaultData>CityDefaultData</DefaultData>
+<IdLocation>^geodistance.CityD</IdLocation>
+<IndexLocation>^geodistance.CityI</IndexLocation>
+<StreamLocation>^geodistance.CityS</StreamLocation>
+<Data name="CityDefaultData">
+<Structure>listnode</Structure>
+<Subscript/>
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>name</Value>
+</Value>
+<Value name="3">
+<Value>latitude</Value>
+</Value>
+<Value name="4">
+<Value>longtude</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>
