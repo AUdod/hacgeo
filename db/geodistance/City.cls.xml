@@ -89,6 +89,19 @@
 ]]></Content>
 </UDLText>
 
+<Method name="NearestCities">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>pointId:%String,top:%String</FormalSpec>
+<Implementation><![CDATA[
+	set sql="select top("_top_") * , sqrt(square(latitude-("_
+				"select latitude from fishnet.City " _
+					"where id = :ponintId))+square(longitude-("_
+							"select longitude from fishnet.City "_
+									"where id = "_pointId_"))) as dist from fishnet.City order by dist"	
+	q ##class(%ZEN.Auxiliary.jsonSQLProvider).%WriteJSONFromSQL(,sql)
+]]></Implementation>
+</Method>
+
 <Method name="Geobox">
 <FormalSpec>srclat:%Decimal(SCALE=7),srclong:%Decimal(SCALE=7),dist:%Decimal</FormalSpec>
 <Implementation><![CDATA[
