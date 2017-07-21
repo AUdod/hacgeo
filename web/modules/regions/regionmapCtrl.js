@@ -10,6 +10,7 @@ controllersModule.controller('regionmapController', function ($scope, $routePara
         $scope.init();
     });
 	
+    $scope.citiesList = [];
     $scope.radiusCircle = null;
     $scope.kilometer = false;
 	$scope.markers = [];
@@ -102,9 +103,14 @@ controllersModule.controller('regionmapController', function ($scope, $routePara
 
     }
     
+    $scope.clearTable = function(){
+        $scope.citiesList.splice(0, $scope.citiesList.length);
+    }
+    
     $scope.coloringNearestCities = function(coords){
         $scope.removeAllPolylines();
         $scope.removeRadiusCircle();
+        $scope.clearTable();
         var cityRequest = {latitude: coords.lat(), longitude: coords.lng(), limit: $scope.limit};
         if($scope.kilometer){
             regionSrvc.getNearestCitiesRadius(cityRequest).then(
@@ -123,6 +129,7 @@ controllersModule.controller('regionmapController', function ($scope, $routePara
                             var destCoord = {lat: $scope.markers[j].lat, lng: $scope.markers[j].lng}
                             
                             var infoWindow = $scope.createMarkerInfo(data.data.children[i]);
+                            $scope.citiesList.push(data.data.children[i]);
                             infoWindow.open(vm.map, $scope.markers[j]);
                             //$scope.markers[j].infoWindow.open(vm.map, $scope.markers[j]);
                             $scope.markers[j].setIcon("http://maps.google.com/mapfiles/ms/icons/blue-dot.png");
