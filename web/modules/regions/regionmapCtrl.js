@@ -63,31 +63,52 @@ controllersModule.controller('regionmapController', function ($scope, $routePara
         }
     }
     
-    $scope.coloringNearestCities = function(id){
+    $scope.coloringNearestCities = function(coords){
         $scope.removeAllPolylines();
-        var cityRequest = {id: id, limit: 4};
+        var cityRequest = {latitude: coords.lat(), longitude: coords.lng(), limit: 4};
         
         regionSrvc.getNearestCities(cityRequest).then(
             function(data){
                 var simplified = {};
-                var srcCity = data.data.children[0];
+                var dataBuff;
+                //var srcCity = data.data.children[0];
                 
-                for(var i = 1; i < data.data.children.length; i++){
+                for(var i = 0; i < data.data.children.length; i++){
+                    for(var j = 0; j < $scope.markers.length; j++){
+                        if($scope.markers[j].id == data.data.children[i].ID){
+                            
+                            var srcCoord = {lat: coords.lat(), lng: coords.lng()};
+                            var destCoord = {lat: $scope.markers[j].lat, lng: $scope.markers[j].lng}
+                            
+                            var infoWindow = $scope.createMarkerInfo(data.data.children[i]);
+                            infoWindow.open(vm.map, $scope.markers[j]);
+                            //$scope.markers[j].infoWindow.open(vm.map, $scope.markers[j]);
+                            $scope.markers[j].setIcon("http://maps.google.com/mapfiles/ms/icons/blue-dot.png");
+                            $scope.markers[j].setAnimation(google.maps.Animation.BOUNCE);
+                            $scope.createPolyline(srcCoord, destCoord);    
+                            
+                        }
+                    }
+                }
+                /*
+                for(var i = 0; i < data.data.children.length; i++){
                     simplified[data.data.children[i].ID] = data.data.children[i].ID;
                 }
                 
                 for(var i = 0; i < $scope.markers.length; i++){
                     if($scope.markers[i].id == simplified[$scope.markers[i].id]){
                         
-                        var srcCoord = {lat: parseInt(srcCity.latitude), lng: parseInt(srcCity.longitude)};
+                        var srcCoord = {lat: coords.lat(), lng: coords.lng()};
                         var destCoord = {lat: $scope.markers[i].lat, lng: $scope.markers[i].lng}
+                        
+                        $scope.createMarkerInfo(data.)
                         $scope.markers[i].infoWindow.open(vm.map, $scope.markers[i]);
                         $scope.markers[i].setIcon("http://maps.google.com/mapfiles/ms/icons/blue-dot.png");
                         $scope.markers[i].setAnimation(google.maps.Animation.BOUNCE);
                         $scope.createPolyline(srcCoord, destCoord);
                     }
                 }
-                
+                */
             },
             function(data,status,headers,config){
 				alert(status);
@@ -127,7 +148,7 @@ controllersModule.controller('regionmapController', function ($scope, $routePara
     $scope.createMarkerInfo = function(markerData){
         var contentString = '<div class = "content">' +
                             '<p>' + markerData.city + '</p>' +
-                            '<br>' + '<p>' + markerData.id + '</p>'
+                            '<p>' + markerData.dist + ' km' + '</p>'
         
         var infoWindow = new google.maps.InfoWindow({
             content: contentString
@@ -138,8 +159,6 @@ controllersModule.controller('regionmapController', function ($scope, $routePara
     }
     
 	$scope.createMarker = function(data){
-        var markerData = {id: data.id, city: data.city};
-        var infoWindow = $scope.createMarkerInfo(markerData);
         
 		var marker = new google.maps.Marker({
 			position: {lat: data.latitude, lng: data.longitude},
@@ -150,19 +169,16 @@ controllersModule.controller('regionmapController', function ($scope, $routePara
             icon: "http://maps.google.com/mapfiles/ms/icons/red-dot.png",            
             lat: data.latitude,
             lng: data.longitude,
-            infoWindow: infoWindow
 		});
 		
-        
-        
-		marker.addListener('click', function(){
+		/*marker.addListener('click', function(){
 				vm.map.setCenter(marker.getPosition());
                 $scope.recolorToBaseAllMarkers();
                 $scope.clearInfoWindows();
                 //infoWindow.open(vm.map, this);
                 $scope.coloringNearestCities(this.id);
                 this.setIcon("http://maps.google.com/mapfiles/ms/icons/yellow-dot.png");
-		});
+		});*/
 		return marker;
 	}
 	
@@ -172,33 +188,12 @@ controllersModule.controller('regionmapController', function ($scope, $routePara
 		$scope.showAll();
 		
 		vm.map.addListener('click', function(e) {
-			/*$scope.clearMap();
-			var marker = $scope.createMarker(e.latLng);
-			$scope.markers.push(marker);
-			
-			vm.map.panTo(marker.getPosition());
-			
-			var coordinate = {lat: e.latLng.lat, lng: e.latLng.lng, limit: 10};
-			
-			
-			marker.addListener('click', function(){
-				vm.map.setZoom(2);
-				vm.map.setCenter(marker.getPosition());
-			});
-			*/
-			
-			
-			
-			/*
-			regionSrvc.getNearestCities(coordinate).then({
-				function(data){
-					//$scope.showNearestCities(data.data);
-				},
-				function (data,status,headers,config){
-					alert(status);
-				}
-			});
-			*/
+			    vm.map.setCenter(e.latLng);
+                $scope.recolorToBaseAllMarkers();
+                $scope.clearInfoWindows();
+                //infoWindow.open(vm.map, this);
+                $scope.coloringNearestCities(e.latLng);
+                this.setIcon("http://maps.google.com/mapfiles/ms/icons/yellow-dot.png");
 			
 		  });
 
