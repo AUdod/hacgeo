@@ -10,6 +10,7 @@ controllersModule.controller('regionmapController', function ($scope, $routePara
         $scope.init();
     });
 	
+    $scope.mainMarker = null;
     $scope.citiesList = [];
     $scope.radiusCircle = null;
     $scope.kilometer = false;
@@ -77,7 +78,6 @@ controllersModule.controller('regionmapController', function ($scope, $routePara
         if($scope.radiusCircle != null){
             $scope.radiusCircle.setMap(null);    
             $scope.radiusCircle.visible = false;    
-            
             $scope.radiusCircle = null;    
         }
             
@@ -107,6 +107,28 @@ controllersModule.controller('regionmapController', function ($scope, $routePara
         $scope.citiesList.splice(0, $scope.citiesList.length);
     }
     
+    $scope.removeMainMarker = function(){
+        if($scope.mainMarker != null){
+            $scope.mainMarker.setMap(null);
+            $scope.mainMarker = null;
+        }
+    }
+    
+    $scope.createMainMarker = function(latlng){
+        var marker = new google.maps.Marker({
+			position: {lat: latlng.lat(), lng: latlng.lng()},
+			map: vm.map,
+			title: 'Click to show info',
+            icon: "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png",            
+            lat: latlng.lat(),
+            lng: latlng.lng(),
+		});
+		
+        marker.setClickable(false);
+        $scope.mainMarker = marker;
+		return marker;
+    }
+    
     $scope.coloringNearestCities = function(coords){
         $scope.removeAllPolylines();
         $scope.removeRadiusCircle();
@@ -134,6 +156,7 @@ controllersModule.controller('regionmapController', function ($scope, $routePara
                             //$scope.markers[j].infoWindow.open(vm.map, $scope.markers[j]);
                             $scope.markers[j].setIcon("http://maps.google.com/mapfiles/ms/icons/blue-dot.png");
                             $scope.markers[j].setAnimation(google.maps.Animation.BOUNCE);
+                            
                             //$scope.createPolyline(srcCoord, destCoord);    
                             
                         }
@@ -257,12 +280,14 @@ controllersModule.controller('regionmapController', function ($scope, $routePara
 		$scope.showAll();
 		
 		vm.map.addListener('click', function(e) {
+                $scope.removeMainMarker();
 			    vm.map.setCenter(e.latLng);
                 $scope.recolorToBaseAllMarkers();
                 $scope.clearInfoWindows();
                 //infoWindow.open(vm.map, this);
                 $scope.coloringNearestCities(e.latLng);
-                this.setIcon("http://maps.google.com/mapfiles/ms/icons/yellow-dot.png");
+                //this.setIcon("http://maps.google.com/mapfiles/ms/icons/yellow-dot.png");
+                $scope.createMainMarker(e.latLng);
 			
 		  });
 
